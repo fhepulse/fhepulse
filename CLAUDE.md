@@ -12,7 +12,7 @@ This is an early-stage monorepo. The frontend exists with mocked Web3 data. Smar
 fhepulse/
 ├── frontend/              # npm workspaces monorepo (see below)
 │   ├── artifacts/
-│   │   ├── basepulse/     # React 19 + Vite 7 SPA (main DApp frontend)
+│   │   ├── fhepulse/     # React 19 + Vite 7 SPA (main DApp frontend)
 │   │   ├── api-server/    # Express 5 API server
 │   │   └── mockup-sandbox/# Vite app for design mockups
 │   ├── lib/
@@ -68,8 +68,8 @@ npm run typecheck
 # Build all packages
 npm run build
 
-# Run the main frontend app (basepulse)
-npm run dev -w @workspace/basepulse
+# Run the main frontend app (fhepulse)
+npm run dev -w @workspace/fhepulse
 
 # Run the API server
 npm run dev -w @workspace/api-server
@@ -118,7 +118,7 @@ npm eth-sepolia:vote -- --poll <address> --weights "30,50,10,10"
 - **Composite TypeScript** — every package sets `composite: true` and extends `tsconfig.base.json`. Cross-package imports require project references. Always typecheck from workspace root, never per-package
 - **`emitDeclarationOnly`** — `tsc` only emits `.d.ts`; actual JS is bundled by Vite/esbuild
 - **API-first codegen** — edit `lib/api-spec/openapi.yaml`, then run Orval codegen to produce typed React Query hooks and Zod validators. Do not hand-write API client code
-- **Mock data** — `frontend/artifacts/basepulse/src/hooks/use-mock-data.ts` provides fake Web3 state. This will be replaced with real contract interactions
+- **Mock data** — `frontend/artifacts/fhepulse/src/hooks/use-mock-data.ts` provides fake Web3 state. This will be replaced with real contract interactions
 - **Per-poll contracts** — each poll is its own `Poll.sol` instance deployed by `PollFactory.sol`. This isolates FHE permissions and state between polls
 - **Encrypted weights** — voters submit `InEuint32[]` (one encrypted weight per option). Linear mode sums weights; quadratic mode sums weights^2 against a credit budget
 - **Multi-tx finalization** — poll creator calls `requestFinalize()` (triggers `FHE.decrypt()`), waits, then calls `finalize()` (retrieves plaintext tallies via `FHE.getDecryptResultSafe()`)
@@ -127,9 +127,9 @@ npm eth-sepolia:vote -- --poll <address> --weights "30,50,10,10"
 ## Conventions
 
 - Use `@workspace/<package-name>` for internal imports between packages
-- UI components live in `artifacts/basepulse/src/components/ui/` (shadcn/ui pattern)
-- Page components live in `artifacts/basepulse/src/pages/`
-- Layout components live in `artifacts/basepulse/src/components/layout/`
+- UI components live in `artifacts/fhepulse/src/components/ui/` (shadcn/ui pattern)
+- Page components live in `artifacts/fhepulse/src/pages/`
+- Layout components live in `artifacts/fhepulse/src/components/layout/`
 - Dark mode is the default theme
 - Format with Prettier (`prettier 3.8`)
 

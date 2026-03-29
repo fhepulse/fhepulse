@@ -1,8 +1,8 @@
 kind = "web"
 previewPath = "/"
-title = "BasePulse - Decentralized Polls & Surveys"
+title = "FhePulse - Decentralized Polls & Surveys"
 version = "1.0.0"
-id = "artifacts/basepulse"
+id = "artifacts/fhepulse"
 router = "path"
 
 [[integratedSkills]]
@@ -15,11 +15,11 @@ paths = [ "/" ]
 localPort = 20803
 
 [services.development]
-run = "pnpm --filter @workspace/basepulse run dev"
+run = "pnpm --filter @workspace/fhepulse run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/basepulse", "run", "build" ]
-publicDir = "artifacts/basepulse/dist/public"
+build = [ "pnpm", "--filter", "@workspace/fhepulse", "run", "build" ]
+publicDir = "artifacts/fhepulse/dist/public"
 serve = "static"
 
 [[services.production.rewrites]]

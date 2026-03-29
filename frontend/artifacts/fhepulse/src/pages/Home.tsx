@@ -41,7 +41,7 @@ export default function Home() {
     {
       step: "01",
       title: "Connect Your Wallet",
-      description: "Link your Web3 wallet to get started. BasePulse works with all major wallets including MetaMask, Coinbase Wallet, and WalletConnect.",
+      description: "Link your Web3 wallet to get started. FhePulse works with all major wallets including MetaMask, Coinbase Wallet, and WalletConnect.",
       icon: Wallet
     },
     {
@@ -152,7 +152,7 @@ export default function Home() {
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">An ecosystem for everyone</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Join BasePulse in the role that fits you best. Participate to earn, create to gather insights, or fund to support the community.</p>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Join FhePulse in the role that fits you best. Participate to earn, create to gather insights, or fund to support the community.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -211,7 +211,7 @@ export default function Home() {
               <Zap className="w-4 h-4 text-primary" />
               <span>Simple &amp; Transparent</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How BasePulse works</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">How FhePulse works</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Get started in four simple steps. Everything is on-chain, transparent, and permissionless.</p>
           </motion.div>
 

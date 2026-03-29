@@ -22,7 +22,7 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 artifacts-monorepo/
 ├── artifacts/              # Deployable applications
 │   ├── api-server/         # Express API server
-│   └── basepulse/          # React + Vite Web3 DApp (served at /)
+│   └── fhepulse/          # React + Vite Web3 DApp (served at /)
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
@@ -63,9 +63,9 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
 
-### `artifacts/basepulse` (`@workspace/basepulse`)
+### `artifacts/fhepulse` (`@workspace/fhepulse`)
 
-BasePulse — decentralized polls & surveys DApp. Frontend-only React + Vite app served at `/`. Uses mocked Web3 state (no real blockchain). Has 4 pages:
+FhePulse — decentralized polls & surveys DApp. Frontend-only React + Vite app served at `/`. Uses mocked Web3 state (no real blockchain). Has 4 pages:
 
 - `/` — Landing page with scroll-reveal sections, poll creation hero input, and platform stats
 - `/creator` — Creator Dashboard with sidebar, stats cards, quick-action buttons, and analytics charts

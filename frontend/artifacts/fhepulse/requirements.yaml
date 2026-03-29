@@ -6,7 +6,7 @@ packages:
   "tailwind-merge": "Utility to safely merge Tailwind CSS classes"
 
 images:
-  - path: "artifacts/basepulse/public/images/hero-glow.png"
+  - path: "artifacts/fhepulse/public/images/hero-glow.png"
     description: "Abstract glowing mesh gradient in deep navy, neon blue, and vivid purple on a dark background, web3 crypto aesthetic"
     aspect_ratio: "16:9"
 
