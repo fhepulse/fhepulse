@@ -9,27 +9,27 @@ export function BottomNav() {
     if (location.startsWith("/creator")) {
       return [
         { label: "Dashboard", href: "/creator", icon: LayoutDashboard },
-        { label: "Polls", href: "#", icon: PieChart },
-        { label: "Create", href: "#", icon: PlusSquare },
-        { label: "Quests", href: "#", icon: Target },
+        { label: "Polls", href: "/creator/polls", icon: PieChart },
+        { label: "Create", href: "/creator", icon: PlusSquare },
+        { label: "Quests", href: "/creator/quests", icon: Target },
         { label: "Home", href: "/", icon: Home },
       ];
     }
     if (location.startsWith("/participant")) {
       return [
         { label: "Dashboard", href: "/participant", icon: LayoutDashboard },
-        { label: "Quests", href: "#", icon: Target },
-        { label: "Points", href: "#", icon: Coins },
-        { label: "Rewards", href: "#", icon: TrendingUp },
+        { label: "Quests", href: "/participant/quests", icon: Target },
+        { label: "Points", href: "/participant/points", icon: Coins },
+        { label: "Rewards", href: "/participant/rewards", icon: TrendingUp },
         { label: "Home", href: "/", icon: Home },
       ];
     }
     if (location.startsWith("/donor")) {
       return [
         { label: "Dashboard", href: "/donor", icon: LayoutDashboard },
-        { label: "Explore", href: "#", icon: PieChart },
-        { label: "Funded", href: "#", icon: Heart },
-        { label: "Trending", href: "#", icon: TrendingUp },
+        { label: "Explore", href: "/donor/explore", icon: PieChart },
+        { label: "Funded", href: "/donor/funded", icon: Heart },
+        { label: "Trending", href: "/donor/trending", icon: TrendingUp },
         { label: "Home", href: "/", icon: Home },
       ];
     }

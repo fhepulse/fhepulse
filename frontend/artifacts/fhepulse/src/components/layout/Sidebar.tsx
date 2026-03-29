@@ -28,26 +28,26 @@ export function Sidebar({ role }: SidebarProps) {
       case 'Creator':
         return [
           { label: "Dashboard", href: "/creator", icon: LayoutDashboard },
-          { label: "Manage Polls", href: "#", icon: ListChecks },
-          { label: "Questionnaires", href: "#", icon: FileText },
-          { label: "Distributions", href: "#", icon: Coins },
-          { label: "Quests", href: "#", icon: Target },
+          { label: "Manage Polls", href: "/creator/polls", icon: ListChecks },
+          { label: "Questionnaires", href: "/creator/questionnaires", icon: FileText },
+          { label: "Distributions", href: "/creator/distributions", icon: Coins },
+          { label: "Quests", href: "/creator/quests", icon: Target },
         ];
       case 'Participant':
         return [
           { label: "Dashboard", href: "/participant", icon: LayoutDashboard },
-          { label: "Quests", href: "#", icon: Target },
-          { label: "My Points", href: "#", icon: Coins },
-          { label: "Membership", href: "#", icon: Award },
-          { label: "Rewards History", href: "#", icon: ListChecks },
+          { label: "Quests", href: "/participant/quests", icon: Target },
+          { label: "My Points", href: "/participant/points", icon: Coins },
+          { label: "Membership", href: "/participant/membership", icon: Award },
+          { label: "Rewards History", href: "/participant/rewards", icon: ListChecks },
         ];
       case 'Donor':
         return [
           { label: "Dashboard", href: "/donor", icon: LayoutDashboard },
-          { label: "Explore Polls", href: "#", icon: Target },
-          { label: "Funded Polls", href: "#", icon: HeartHandshake },
-          { label: "Funding History", href: "#", icon: Coins },
-          { label: "Trending", href: "#", icon: TrendingUp },
+          { label: "Explore Polls", href: "/donor/explore", icon: Target },
+          { label: "Funded Polls", href: "/donor/funded", icon: HeartHandshake },
+          { label: "Funding History", href: "/donor/history", icon: Coins },
+          { label: "Trending", href: "/donor/trending", icon: TrendingUp },
         ];
     }
   };
@@ -109,15 +109,15 @@ export function Sidebar({ role }: SidebarProps) {
         <div>
           <p className="text-xs font-bold tracking-wider text-muted-foreground uppercase mb-4 px-3">QUICK ACTIONS</p>
           <nav className="space-y-1">
-            <Link href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground transition-all group">
+            <Link href="/token-stats" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground transition-all group">
               <BarChart3 className="w-4 h-4 text-muted-foreground group-hover:text-sidebar-foreground" />
               Token Stats
             </Link>
-            <Link href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground transition-all group">
+            <Link href="/analytics" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground transition-all group">
               <BarChart3 className="w-4 h-4 text-muted-foreground group-hover:text-sidebar-foreground" />
               Analytics
             </Link>
-            <Link href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground transition-all group">
+            <Link href="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground transition-all group">
               <Settings className="w-4 h-4 text-muted-foreground group-hover:text-sidebar-foreground" />
               Settings
             </Link>

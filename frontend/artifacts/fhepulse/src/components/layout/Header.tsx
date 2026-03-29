@@ -10,7 +10,7 @@ export function Header() {
 
   const navItems = [
     { label: "Home", href: "/" },
-    { label: "Dapp", href: "#" },
+    { label: "Analytics", href: "/analytics" },
     { label: "Creator", href: "/creator" },
     { label: "Participant", href: "/participant" },
     { label: "Donor", href: "/donor" },
@@ -45,11 +45,10 @@ export function Header() {
             );
           })}
           <div className="h-4 w-px bg-white/10 mx-2" />
-          <Link href="#" className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/5 transition-all">Bridge</Link>
-          <Link href="#" className="px-4 py-2 rounded-lg text-sm font-medium text-primary hover:text-primary/80 transition-all font-semibold">Buy PULSE</Link>
+          <Link href="/token-stats" className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/5 transition-all">Token Stats</Link>
+          <Link href="/analytics" className="px-4 py-2 rounded-lg text-sm font-medium text-primary hover:text-primary/80 transition-all font-semibold">Analytics</Link>
           <div className="h-4 w-px bg-white/10 mx-2" />
-          <Link href="#" className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/5 transition-all">Wallet</Link>
-          <Link href="#" className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/5 transition-all">Settings</Link>
+          <Link href="/settings" className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/5 transition-all">Settings</Link>
         </nav>
 
         <div className="flex items-center gap-3">
