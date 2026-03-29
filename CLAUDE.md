@@ -10,7 +10,7 @@ This is an early-stage monorepo. The frontend exists with mocked Web3 data. Smar
 
 ```
 fhepulse/
-├── frontend/              # pnpm workspace monorepo (see below)
+├── frontend/              # npm workspaces monorepo (see below)
 │   ├── artifacts/
 │   │   ├── basepulse/     # React 19 + Vite 7 SPA (main DApp frontend)
 │   │   ├── api-server/    # Express 5 API server
@@ -34,7 +34,7 @@ fhepulse/
 
 ### Frontend (`frontend/`)
 
-- **Monorepo**: pnpm workspaces
+- **Monorepo**: npm workspaces (`.npmrc` sets `legacy-peer-deps=true`)
 - **Runtime**: Node.js 24
 - **Language**: TypeScript 5.9 (composite project references, `tsc --build`)
 - **Frontend**: React 19, Vite 7, Wouter (routing), TanStack React Query
@@ -60,29 +60,29 @@ All frontend commands run from `frontend/`:
 
 ```bash
 # Install dependencies
-pnpm install
+npm install
 
 # Typecheck entire workspace (always run from root, never per-package)
-pnpm run typecheck
+npm run typecheck
 
 # Build all packages
-pnpm run build
+npm run build
 
 # Run the main frontend app (basepulse)
-pnpm --filter @workspace/basepulse run dev
+npm run dev -w @workspace/basepulse
 
 # Run the API server
-pnpm --filter @workspace/api-server run dev
+npm run dev -w @workspace/api-server
 
 # Generate API client code from OpenAPI spec
-pnpm --filter @workspace/api-spec run codegen
+npm run codegen -w @workspace/api-spec
 
 # Database migrations (requires DATABASE_URL)
-pnpm --filter @workspace/db run push
-pnpm --filter @workspace/db run push-force   # fallback if push fails
+npm run push -w @workspace/db
+npm run push-force -w @workspace/db   # fallback if push fails
 
 # Run a utility script
-pnpm --filter @workspace/scripts run <script-name>
+npm run <script-name> -w @workspace/scripts
 ```
 
 ### Contract Commands
@@ -91,30 +91,30 @@ All contract commands run from `cofhe-contracts/`:
 
 ```bash
 # Install dependencies
-pnpm install
+npm install
 
 # Compile contracts
-pnpm compile
+npm compile
 
 # Run tests (mock FHE environment)
-pnpm test
+npm test
 
 # Clean build artifacts
-pnpm clean
+npm clean
 
 # Deploy PollFactory (testnet)
-pnpm eth-sepolia:deploy    # or arb-sepolia:deploy
+npm eth-sepolia:deploy    # or arb-sepolia:deploy
 
 # Create a poll (testnet)
-pnpm eth-sepolia:create-poll -- --title "My Poll" --options 4 --mode 0 --budget 100
+npm eth-sepolia:create-poll -- --title "My Poll" --options 4 --mode 0 --budget 100
 
 # Submit a vote (testnet)
-pnpm eth-sepolia:vote -- --poll <address> --weights "30,50,10,10"
+npm eth-sepolia:vote -- --poll <address> --weights "30,50,10,10"
 ```
 
 ## Key Architecture Decisions
 
-- **pnpm only** — enforced via preinstall hook; npm/yarn will error
+- **npm workspaces** — workspaces defined in root `package.json`; `legacy-peer-deps=true` in `.npmrc`
 - **Composite TypeScript** — every package sets `composite: true` and extends `tsconfig.base.json`. Cross-package imports require project references. Always typecheck from workspace root, never per-package
 - **`emitDeclarationOnly`** — `tsc` only emits `.d.ts`; actual JS is bundled by Vite/esbuild
 - **API-first codegen** — edit `lib/api-spec/openapi.yaml`, then run Orval codegen to produce typed React Query hooks and Zod validators. Do not hand-write API client code
