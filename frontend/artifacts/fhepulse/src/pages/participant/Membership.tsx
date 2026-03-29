@@ -56,9 +56,19 @@ export default function Membership() {
             <CardTitle>Tier Progression</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-2 mb-6">
+            <div className="relative flex items-start mb-6">
+              {/* Connector lines between tier icons */}
+              <div className="absolute top-5 left-0 right-0 flex px-[calc(12.5%-5px)]">
+                {data.tiers.slice(0, -1).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`flex-1 h-0.5 ${i < currentTierIndex ? "bg-primary" : "bg-white/10"}`}
+                  />
+                ))}
+              </div>
+              {/* Tier icons */}
               {data.tiers.map((tier, i) => (
-                <div key={tier.name} className="flex-1 flex flex-col items-center">
+                <div key={tier.name} className="flex-1 flex flex-col items-center relative z-10">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
                     i <= currentTierIndex
                       ? "bg-primary text-white"
@@ -70,9 +80,6 @@ export default function Membership() {
                     {tier.name}
                   </p>
                   <p className="text-[10px] text-muted-foreground">{tier.minPoints}+ pts</p>
-                  {i < data.tiers.length - 1 && (
-                    <div className={`absolute h-0.5 w-full ${i < currentTierIndex ? "bg-primary" : "bg-white/5"}`} />
-                  )}
                 </div>
               ))}
             </div>
