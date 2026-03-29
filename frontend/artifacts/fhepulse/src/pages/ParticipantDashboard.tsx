@@ -1,17 +1,25 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { useParticipantStats, usePolls } from "@/hooks/use-mock-data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { 
-  Wallet, PieChart, CheckCircle2, Clock, 
+import {
+  Wallet, PieChart, CheckCircle2, Clock,
   ArrowRight, Box, Target, Zap, PlusCircle
 } from "lucide-react";
+import { useAllPolls } from "@/hooks/use-poll-factory";
+import { PollCard } from "@/components/polls/PollCard";
+import { PollStatus } from "@/lib/types";
 
 export default function ParticipantDashboard() {
-  const stats = useParticipantStats();
-  const { polls, isLoading } = usePolls('active');
+  const { data: allPolls = [], isLoading } = useAllPolls();
+  const polls = allPolls.filter((p) => p.status === PollStatus.Active);
+  const stats = {
+    totalClaimable: "—",
+    pollsParticipated: allPolls.filter((p) => p.status === PollStatus.Finalized).length,
+    totalClaimed: "—",
+    pendingClaims: 0,
+  };
 
   return (
     <AppLayout role="Participant">
@@ -93,19 +101,7 @@ export default function ParticipantDashboard() {
             ) : polls.length > 0 ? (
               <div className="space-y-4">
                 {polls.map((poll) => (
-                  <Card key={poll.id} className="border-white/5 hover:border-primary/30 transition-colors group">
-                    <CardContent className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline" className="text-xs bg-white/5">Ends in {poll.timeLeft}</Badge>
-                          {poll.reward !== '0' && <Badge variant="success" className="text-xs">{poll.reward} Reward</Badge>}
-                        </div>
-                        <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">{poll.title}</h3>
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{poll.description}</p>
-                      </div>
-                      <Button className="w-full sm:w-auto shadow-lg shadow-primary/20">Vote Now</Button>
-                    </CardContent>
-                  </Card>
+                  <PollCard key={poll.address} poll={poll} />
                 ))}
               </div>
             ) : (

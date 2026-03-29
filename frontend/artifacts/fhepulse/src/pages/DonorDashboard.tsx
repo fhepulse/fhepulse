@@ -1,17 +1,25 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { useDonorStats, usePolls } from "@/hooks/use-mock-data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { 
-  Heart, Coins, Target, Award, Search, 
+import {
+  Heart, Coins, Target, Award, Search,
   CheckCircle, TrendingUp, ArrowRight, Banknote
 } from "lucide-react";
+import { useAllPolls } from "@/hooks/use-poll-factory";
+import { PollCard } from "@/components/polls/PollCard";
+import { PollStatus } from "@/lib/types";
 
 export default function DonorDashboard() {
-  const stats = useDonorStats();
-  const { polls, isLoading } = usePolls('seeking_funding');
+  const { data: allPolls = [], isLoading } = useAllPolls();
+  const polls = allPolls.filter((p) => p.status === PollStatus.SeekingFunding);
+  const stats = {
+    totalFunded: "—",
+    pollsFunded: 0,
+    activeFunding: polls.length,
+    impactScore: 0,
+  };
 
   return (
     <AppLayout role="Donor">
@@ -126,23 +134,7 @@ export default function DonorDashboard() {
           ) : polls.length > 0 ? (
             <div className="grid gap-4">
               {polls.map((poll) => (
-                <Card key={poll.id} className="border-white/5 hover:border-white/20 transition-all">
-                  <CardContent className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline" className="text-xs bg-rose-500/10 text-rose-400 border-rose-500/20">{poll.reward}</Badge>
-                        <span className="text-xs text-muted-foreground">Created by {poll.creator}</span>
-                      </div>
-                      <h3 className="text-lg font-bold text-white mb-1">{poll.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{poll.description}</p>
-                    </div>
-                    <div className="flex flex-col gap-2 min-w-[140px]">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20">
-                        <Banknote className="w-4 h-4 mr-2" /> Fund Now
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <PollCard key={poll.address} poll={poll} />
               ))}
             </div>
           ) : (

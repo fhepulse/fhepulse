@@ -1,12 +1,12 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { useWallet } from "@/hooks/use-mock-data";
-import { Activity, Settings, Wallet } from "lucide-react";
+import { Activity, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ConnectWalletButton } from "@/components/web3/ConnectWalletButton";
+import { NetworkBadge } from "@/components/web3/NetworkBadge";
 
 export function Header() {
   const [location] = useLocation();
-  const wallet = useWallet();
 
   const navItems = [
     { label: "Home", href: "/" },
@@ -56,17 +56,8 @@ export function Header() {
           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white rounded-full">
             <Settings className="w-4 h-4" />
           </Button>
-          
-          <div className="flex items-center bg-black/40 border border-white/10 rounded-full p-1 pl-3 shadow-inner">
-            <div className="flex items-center gap-2 mr-3">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-medium text-muted-foreground">{wallet.network}</span>
-            </div>
-            <Button size="sm" className="rounded-full h-8 px-4 bg-white/10 hover:bg-white/20 border-0 text-white">
-              <Wallet className="w-3.5 h-3.5 mr-2 opacity-70" />
-              {wallet.address}
-            </Button>
-          </div>
+          <NetworkBadge />
+          <ConnectWalletButton />
         </div>
       </div>
     </header>

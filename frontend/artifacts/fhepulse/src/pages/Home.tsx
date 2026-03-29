@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { usePlatformStats } from "@/hooks/use-mock-data";
+import { useWallet } from "@/hooks/use-wallet";
 import { useLocation } from "wouter";
 
 function Counter({ value, suffix = "" }: { value: number | string, suffix?: string }) {
@@ -28,6 +29,7 @@ const staggerChild: Variants = {
 export default function Home() {
   const stats = usePlatformStats();
   const [, setLocation] = useLocation();
+  const wallet = useWallet();
   const [pollText, setPollText] = useState("");
 
   const handleCreateQuick = (e: React.FormEvent) => {
@@ -284,9 +286,13 @@ export default function Home() {
           <div className="relative z-10 px-8 py-16 md:py-20 md:px-16 text-center flex flex-col items-center">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Ready to tap into the pulse?</h2>
             <p className="text-lg text-white/80 max-w-2xl mb-10">Connect your wallet to start participating in the decentralized data economy. No hidden fees, completely transparent.</p>
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold text-lg px-10 h-14 rounded-xl shadow-2xl">
+            <Button
+              size="lg"
+              className="bg-white text-primary hover:bg-white/90 font-bold text-lg px-10 h-14 rounded-xl shadow-2xl"
+              onClick={() => wallet.isConnected ? setLocation("/participant") : wallet.connect()}
+            >
               <Wallet className="w-5 h-5 mr-3" />
-              Connect Wallet
+              {wallet.isConnected ? "Go to Dashboard" : "Connect Wallet"}
             </Button>
           </div>
         </motion.div>

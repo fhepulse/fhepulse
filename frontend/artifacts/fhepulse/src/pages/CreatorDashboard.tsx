@@ -1,19 +1,34 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { useCreatorStats, useChartData } from "@/hooks/use-mock-data";
+import { useChartData } from "@/hooks/use-mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  PlusCircle, FileText, Target, FolderPlus, 
+import {
+  PlusCircle, FileText, Target, FolderPlus,
   BarChart2, Users, Activity, Coins, Zap
 } from "lucide-react";
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
+import { useWallet } from "@/hooks/use-wallet";
+import { useAllPolls } from "@/hooks/use-poll-factory";
+import { CreatePollForm } from "@/components/polls/CreatePollForm";
+import { PollCard } from "@/components/polls/PollCard";
+import { PollStatus } from "@/lib/types";
+import { formatEther } from "ethers";
 
 export default function CreatorDashboard() {
-  const stats = useCreatorStats();
+  const { address } = useWallet();
+  const { data: allPolls = [] } = useAllPolls();
   const chartData = useChartData();
+
+  const myPolls = allPolls.filter((p) => address && p.creator.toLowerCase() === address.toLowerCase());
+  const stats = {
+    totalPolls: myPolls.length,
+    totalResponses: myPolls.reduce((sum, p) => sum + p.participantCount, 0),
+    activePolls: myPolls.filter((p) => p.status === PollStatus.Active).length,
+    totalFunded: myPolls.reduce((sum, p) => sum + Number(formatEther(p.rewardPool)), 0).toFixed(4),
+  };
 
   return (
     <AppLayout role="Creator">
@@ -41,10 +56,12 @@ export default function CreatorDashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button className="h-auto py-4 flex flex-col gap-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 shadow-none hover-elevate">
-            <PlusCircle className="w-6 h-6" />
-            <span>Create Poll</span>
-          </Button>
+          <CreatePollForm trigger={
+            <Button className="h-auto py-4 flex flex-col gap-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 shadow-none hover-elevate">
+              <PlusCircle className="w-6 h-6" />
+              <span>Create Poll</span>
+            </Button>
+          } />
           <Button className="h-auto py-4 flex flex-col gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 shadow-none hover-elevate">
             <FileText className="w-6 h-6" />
             <span>Create Questionnaire</span>
@@ -102,6 +119,18 @@ export default function CreatorDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* My Polls */}
+        {myPolls.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">My Polls</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {myPolls.map((poll) => (
+                <PollCard key={poll.address} poll={poll} />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Charts & Lists */}
         <div className="grid lg:grid-cols-3 gap-6">
