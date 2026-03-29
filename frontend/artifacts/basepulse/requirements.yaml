@@ -1,0 +1,15 @@
+packages:
+  "framer-motion": "Used for scroll reveal animations and smooth page transitions"
+  "recharts": "Used for response analytics charts in the Creator dashboard"
+  "lucide-react": "Required for UI icons across navigation and dashboards"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to safely merge Tailwind CSS classes"
+
+images:
+  - path: "artifacts/basepulse/public/images/hero-glow.png"
+    description: "Abstract glowing mesh gradient in deep navy, neon blue, and vivid purple on a dark background, web3 crypto aesthetic"
+    aspect_ratio: "16:9"
+
+notes:
+  - "Pure frontend implementation with mocked data, no backend required."
+  - "App forces dark mode styling via CSS variables."
