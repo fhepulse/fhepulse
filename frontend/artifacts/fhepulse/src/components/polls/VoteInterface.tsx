@@ -5,14 +5,12 @@ import { Progress } from "@/components/ui/progress";
 import { Loader2, Lock, CheckCircle2 } from "lucide-react";
 import { useWallet } from "@/hooks/use-wallet";
 import { useHasVoted, useVote } from "@/hooks/use-poll";
-import { useCofhe } from "@/hooks/use-cofhe";
 import { VotingMode, type PollInfo } from "@/lib/types";
 import { toast } from "sonner";
 
 export function VoteInterface({ poll }: { poll: PollInfo }) {
   const { address, isConnected } = useWallet();
   const { data: hasVoted } = useHasVoted(poll.address, address);
-  const { isReady: cofheReady, encrypt } = useCofhe();
   const voteMutation = useVote(poll.address);
   const [weights, setWeights] = useState<number[]>(Array(poll.optionCount).fill(0));
 
@@ -38,9 +36,7 @@ export function VoteInterface({ poll }: { poll: PollInfo }) {
       return;
     }
     try {
-      const bigWeights = weights.map((w) => BigInt(w));
-      const encrypted = await encrypt(bigWeights);
-      await voteMutation.mutateAsync(encrypted);
+      await voteMutation.mutateAsync(weights);
       toast.success("Vote submitted! Your vote is encrypted and private.");
     } catch (err: any) {
       toast.error(err?.reason || err?.message || "Vote failed");
@@ -81,24 +77,27 @@ export function VoteInterface({ poll }: { poll: PollInfo }) {
       </div>
 
       <div className="space-y-4">
-        {Array.from({ length: poll.optionCount }, (_, i) => (
-          <div key={i} className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-white">Option {i + 1}</span>
-              <span className="text-muted-foreground font-mono">
-                {weights[i]}
-                {isQuadratic && <span className="text-xs ml-1">(cost: {weights[i] * weights[i]})</span>}
-              </span>
+        {Array.from({ length: poll.optionCount }, (_, i) => {
+          const label = poll.optionLabels?.[i] || `Option ${i + 1}`;
+          return (
+            <div key={i} className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-white">{label}</span>
+                <span className="text-muted-foreground font-mono">
+                  {weights[i]}
+                  {isQuadratic && <span className="text-xs ml-1">(cost: {weights[i] * weights[i]})</span>}
+                </span>
+              </div>
+              <Slider
+                value={[weights[i]]}
+                onValueChange={([v]) => updateWeight(i, v)}
+                min={0}
+                max={isQuadratic ? Math.floor(Math.sqrt(budget)) : budget}
+                step={1}
+              />
             </div>
-            <Slider
-              value={[weights[i]]}
-              onValueChange={([v]) => updateWeight(i, v)}
-              min={0}
-              max={isQuadratic ? Math.floor(Math.sqrt(budget)) : budget}
-              step={1}
-            />
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10 text-sm text-muted-foreground">
@@ -109,15 +108,13 @@ export function VoteInterface({ poll }: { poll: PollInfo }) {
       <Button
         className="w-full"
         onClick={handleSubmit}
-        disabled={voteMutation.isPending || isOverBudget || totalUsed === 0 || !cofheReady}
+        disabled={voteMutation.isPending || isOverBudget || totalUsed === 0}
       >
         {voteMutation.isPending ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Encrypting & Submitting...
+            Submitting...
           </>
-        ) : !cofheReady ? (
-          "Initializing encryption..."
         ) : (
           <>
             <Lock className="w-4 h-4 mr-2" />

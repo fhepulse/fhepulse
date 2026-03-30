@@ -3,12 +3,12 @@ import { Trophy } from "lucide-react";
 
 const COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#06b6d4", "#ec4899", "#f97316"];
 
-export function PollResults({ results, optionCount }: { results: number[]; optionCount: number }) {
+export function PollResults({ results, optionCount, optionLabels = [] }: { results: number[]; optionCount: number; optionLabels?: string[] }) {
   const total = results.reduce((a, b) => a + b, 0);
   const maxIdx = results.indexOf(Math.max(...results));
 
   const data = results.map((value, i) => ({
-    name: `Option ${i + 1}`,
+    name: optionLabels[i] || `Option ${i + 1}`,
     votes: value,
     percent: total > 0 ? ((value / total) * 100).toFixed(1) : "0",
   }));
@@ -18,7 +18,7 @@ export function PollResults({ results, optionCount }: { results: number[]; optio
       <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
         <Trophy className="w-5 h-5 text-emerald-400" />
         <span className="text-sm text-emerald-400 font-medium">
-          Option {maxIdx + 1} wins with {data[maxIdx]?.percent}% of votes ({data[maxIdx]?.votes} points)
+          {data[maxIdx]?.name} wins with {data[maxIdx]?.percent}% of votes ({data[maxIdx]?.votes} points)
         </span>
       </div>
 

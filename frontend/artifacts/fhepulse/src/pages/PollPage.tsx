@@ -160,7 +160,7 @@ export default function PollPage() {
 
             {/* Finalized: Show results */}
             {poll.status === PollStatus.Finalized && results && (
-              <PollResults results={results} optionCount={poll.optionCount} />
+              <PollResults results={results} optionCount={poll.optionCount} optionLabels={poll.optionLabels} />
             )}
           </CardContent>
         </Card>

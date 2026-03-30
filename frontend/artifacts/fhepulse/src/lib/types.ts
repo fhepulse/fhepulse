@@ -17,6 +17,7 @@ export interface PollInfo {
   title: string;
   description: string;
   optionCount: number;
+  optionLabels: string[];
   deadline: Date;
   votingMode: VotingMode;
   creditBudget: number;
@@ -29,6 +30,7 @@ export interface CreatePollParams {
   title: string;
   description: string;
   optionCount: number;
+  optionLabels: string[];
   durationSeconds: number;
   votingMode: VotingMode;
   creditBudget: number;

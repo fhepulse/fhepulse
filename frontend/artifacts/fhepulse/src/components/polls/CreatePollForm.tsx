@@ -87,8 +87,20 @@ export function CreatePollForm({ trigger }: { trigger?: React.ReactNode }) {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const { optionLabels, rewardEnabled, ...params } = values;
-      await createPoll.mutateAsync(params);
+      const { rewardEnabled, ...rest } = values;
+      const labels = rest.optionLabels
+        .split("\n")
+        .map((l) => l.replace(/^\d+[\.\)]\s*/, "").trim())
+        .filter(Boolean);
+      await createPoll.mutateAsync({
+        title: rest.title,
+        description: rest.description,
+        durationSeconds: rest.durationSeconds,
+        optionCount: rest.optionCount,
+        optionLabels: labels,
+        votingMode: rest.votingMode,
+        creditBudget: rest.creditBudget,
+      });
       toast.success("Poll created successfully!");
       handleOpenChange(false);
     } catch (err: any) {
