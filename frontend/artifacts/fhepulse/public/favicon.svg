@@ -1,3 +1,43 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <defs>
+    <linearGradient id="sg" x1="90" y1="15" x2="90" y2="165" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="45%" stop-color="#0EA5E9"/>
+      <stop offset="75%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="si" x1="90" y1="25" x2="90" y2="155" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C4A6E"/>
+      <stop offset="50%" stop-color="#1E1B4B"/>
+      <stop offset="100%" stop-color="#2E1065"/>
+    </linearGradient>
+    <linearGradient id="lg" x1="90" y1="88" x2="90" y2="135" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#67E8F9"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="55" y1="105" x2="130" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+  </defs>
+  <!-- Shield outer -->
+  <path d="M90 18 C90 18 46 33 38 48 C30 63 26 82 30 102 C34 122 50 140 70 152 C82 160 90 164 90 164 C90 164 98 160 110 152 C130 140 146 122 150 102 C154 82 150 63 142 48 C134 33 90 18 90 18 Z"
+        fill="url(#sg)"/>
+  <!-- Shield inner -->
+  <path d="M90 28 C90 28 52 41 45 54 C38 67 35 83 38 100 C41 117 55 133 72 143 C82 149 90 153 90 153 C90 153 98 149 108 143 C125 133 139 117 142 100 C145 83 142 67 135 54 C128 41 90 28 90 28 Z"
+        fill="url(#si)"/>
+  <!-- Bars -->
+  <rect x="62" y="82" width="10" height="28" rx="2" fill="#22D3EE" opacity="0.7"/>
+  <rect x="76" y="62" width="10" height="48" rx="2" fill="#22D3EE" opacity="0.85"/>
+  <rect x="90" y="52" width="10" height="58" rx="2" fill="#22D3EE" opacity="0.95"/>
+  <rect x="104" y="72" width="10" height="38" rx="2" fill="#22D3EE" opacity="0.75"/>
+  <!-- Orbit -->
+  <ellipse cx="92" cy="108" rx="58" ry="20" fill="none" stroke="url(#bg)" stroke-width="3" stroke-linecap="round"
+           stroke-dasharray="110 80" stroke-dashoffset="20" opacity="0.85" transform="rotate(-15, 92, 108)"/>
+  <!-- Lock -->
+  <path d="M82 108 L82 100 C82 93 85 88 90 88 C95 88 98 93 98 100 L98 108"
+        stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <rect x="78" y="106" width="24" height="19" rx="4" fill="url(#lg)"/>
+  <circle cx="90" cy="113" r="2.5" fill="#0F172A"/>
+  <rect x="89" y="114.5" width="2.5" height="5" rx="1.2" fill="#0F172A"/>
 </svg>

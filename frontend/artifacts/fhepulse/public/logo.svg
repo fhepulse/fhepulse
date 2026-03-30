@@ -1,0 +1,97 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Shield gradient: cyan top to purple bottom -->
+    <linearGradient id="shieldGrad" x1="256" y1="80" x2="256" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="40%" stop-color="#0EA5E9"/>
+      <stop offset="70%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <!-- Shield inner (darker) -->
+    <linearGradient id="shieldInner" x1="256" y1="110" x2="256" y2="390" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C4A6E"/>
+      <stop offset="50%" stop-color="#1E1B4B"/>
+      <stop offset="100%" stop-color="#2E1065"/>
+    </linearGradient>
+    <!-- Bar chart gradient -->
+    <linearGradient id="barGrad" x1="200" y1="300" x2="200" y2="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0E7490"/>
+      <stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient>
+    <!-- Lock gradient -->
+    <linearGradient id="lockGrad" x1="256" y1="270" x2="256" y2="370" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#67E8F9"/>
+      <stop offset="50%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+    <!-- Orbit ring gradient -->
+    <linearGradient id="orbitGrad" x1="100" y1="300" x2="420" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="40%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+    <!-- Glow filters -->
+    <filter id="shieldGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="orbitGlow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="lockGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Shield outer shape -->
+  <g filter="url(#shieldGlow)">
+    <path d="M256 80 C256 80 148 110 128 140 C108 170 100 220 108 270 C116 320 150 365 200 395 C230 414 256 425 256 425 C256 425 282 414 312 395 C362 365 396 320 404 270 C412 220 404 170 384 140 C364 110 256 80 256 80 Z"
+          fill="url(#shieldGrad)"/>
+  </g>
+
+  <!-- Shield inner dark area -->
+  <path d="M256 105 C256 105 163 130 146 157 C129 184 122 227 129 270 C136 313 165 352 208 378 C234 394 256 403 256 403 C256 403 278 394 304 378 C347 352 376 313 383 270 C390 227 383 184 366 157 C349 130 256 105 256 105 Z"
+        fill="url(#shieldInner)"/>
+
+  <!-- Bar chart (poll results visualization) -->
+  <!-- Bar 1 - short left -->
+  <rect x="185" y="245" width="26" height="75" rx="3" fill="url(#barGrad)" opacity="0.7"/>
+  <!-- Bar 2 - tall left-center -->
+  <rect x="218" y="175" width="26" height="145" rx="3" fill="url(#barGrad)" opacity="0.85"/>
+  <!-- Bar 3 - tallest center -->
+  <rect x="251" y="150" width="26" height="170" rx="3" fill="url(#barGrad)" opacity="0.95"/>
+  <!-- Bar 4 - medium right-center -->
+  <rect x="284" y="210" width="26" height="110" rx="3" fill="url(#barGrad)" opacity="0.8"/>
+  <!-- Bar 5 - short right -->
+  <rect x="317" y="255" width="26" height="65" rx="3" fill="url(#barGrad)" opacity="0.65"/>
+
+  <!-- Orbit ring behind lock (back arc) -->
+  <g filter="url(#orbitGlow)">
+    <ellipse cx="260" cy="305" rx="170" ry="58" fill="none" stroke="url(#orbitGrad)" stroke-width="7" stroke-linecap="round"
+             stroke-dasharray="320 220" stroke-dashoffset="60" opacity="0.85"
+             transform="rotate(-15, 260, 305)"/>
+  </g>
+
+  <!-- Lock body -->
+  <g filter="url(#lockGlow)">
+    <!-- Lock shackle -->
+    <path d="M236 305 L236 282 C236 264 244 252 256 252 C268 252 276 264 276 282 L276 305"
+          stroke="url(#lockGrad)" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Lock body rect -->
+    <rect x="224" y="300" width="64" height="50" rx="10" fill="url(#lockGrad)"/>
+    <!-- Keyhole -->
+    <circle cx="256" cy="320" r="7" fill="#0F172A"/>
+    <rect x="253" y="323" width="6" height="14" rx="3" fill="#0F172A"/>
+  </g>
+
+  <!-- Orbit ring front arc (passes in front of lock) -->
+  <ellipse cx="260" cy="305" rx="170" ry="58" fill="none" stroke="url(#orbitGrad)" stroke-width="7" stroke-linecap="round"
+           stroke-dasharray="120 430" stroke-dashoffset="280" opacity="0.9"
+           transform="rotate(-15, 260, 305)"/>
+
+  <!-- Small highlight sparkle on shield top-left -->
+  <circle cx="175" cy="145" r="3" fill="#67E8F9" opacity="0.8"/>
+  <circle cx="168" cy="155" r="1.5" fill="#67E8F9" opacity="0.5"/>
+</svg>
