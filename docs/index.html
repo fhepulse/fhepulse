@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FhePulse — Privacy-Preserving Polls on Fhenix</title>
+<meta name="description" content="Decentralized polls & surveys powered by Fully Homomorphic Encryption. Vote privately, verify publicly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #06080c;
+    --bg-surface: #0c1018;
+    --bg-elevated: #131a26;
+    --border-subtle: rgba(56, 189, 172, 0.08);
+    --border-accent: rgba(56, 189, 172, 0.25);
+    --text-primary: #e8eff8;
+    --text-secondary: #8a99b4;
+    --text-muted: #4e5d78;
+    --accent: #38bdac;
+    --accent-glow: rgba(56, 189, 172, 0.4);
+    --accent-warm: #e8a44a;
+    --accent-warm-glow: rgba(232, 164, 74, 0.35);
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+
+  /* --- Noise Overlay --- */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+  }
+
+  /* --- Grid Background --- */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image:
+      linear-gradient(rgba(56, 189, 172, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56, 189, 172, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+  }
+
+  /* --- Floating Orbs --- */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(56, 189, 172, 0.08), transparent 70%);
+    top: -10%; left: -5%;
+    animation: orbFloat1 25s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232, 164, 74, 0.05), transparent 70%);
+    bottom: 10%; right: -10%;
+    animation: orbFloat2 30s ease-in-out infinite;
+  }
+  .orb-3 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(56, 189, 172, 0.06), transparent 70%);
+    top: 50%; left: 40%;
+    animation: orbFloat3 20s ease-in-out infinite;
+  }
+  @keyframes orbFloat1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(40px, 30px); } }
+  @keyframes orbFloat2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-30px, -40px); } }
+  @keyframes orbFloat3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -25px); } }
+
+  /* --- Layout --- */
+  .content-wrap {
+    position: relative;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  section {
+    padding: 120px 0;
+  }
+
+  /* --- Nav --- */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 20px 0;
+    transition: background 0.4s, backdrop-filter 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(6, 8, 12, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  nav .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+
+  /* --- Buttons --- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg-deep);
+    box-shadow: 0 0 20px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .btn-primary:hover {
+    background: #45d4c1;
+    box-shadow: 0 0 35px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.2);
+    transform: translateY(-1px);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-accent);
+  }
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+    background: rgba(56, 189, 172, 0.05);
+  }
+
+  /* --- Hero --- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 80px;
+    position: relative;
+  }
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px 6px 8px;
+    border-radius: 100px;
+    background: rgba(56, 189, 172, 0.08);
+    border: 1px solid var(--border-accent);
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    animation: fadeInUp 0.8s ease-out both;
+  }
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 5.5vw, 4.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    animation: fadeInUp 0.8s 0.1s ease-out both;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero .hero-sub {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 40px;
+    animation: fadeInUp 0.8s 0.2s ease-out both;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    animation: fadeInUp 0.8s 0.3s ease-out both;
+  }
+
+  /* Hero Visual */
+  .hero-visual {
+    position: relative;
+    animation: fadeIn 1.2s 0.4s ease-out both;
+  }
+  .hero-visual-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-visual-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+  .poll-mock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .poll-mock-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+  }
+  .poll-mock-badge-live {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 100px;
+    background: rgba(56, 189, 172, 0.1);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .poll-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--bg-elevated);
+    border: 1px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .poll-option:hover { border-color: var(--border-accent); }
+  .poll-option .bar-track {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(56, 189, 172, 0.08);
+    overflow: hidden;
+  }
+  .poll-option .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), rgba(56, 189, 172, 0.5));
+    animation: barGrow 1.5s 0.8s ease-out both;
+  }
+  .poll-option .label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    min-width: 80px;
+  }
+  .poll-option .pct {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    min-width: 36px;
+    text-align: right;
+  }
+  @keyframes barGrow { from { width: 0; } }
+
+  .poll-mock-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .poll-voters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .voter-dots {
+    display: flex;
+    gap: -4px;
+  }
+  .voter-dot {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-surface);
+    margin-left: -6px;
+  }
+  .voter-dot:first-child { margin-left: 0; }
+  .voter-dot:nth-child(1) { background: #5b6abf; }
+  .voter-dot:nth-child(2) { background: #e8a44a; }
+  .voter-dot:nth-child(3) { background: #38bdac; }
+  .encrypted-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+  }
+  .encrypted-tag svg { opacity: 0.7; }
+
+  /* Floating encryption fragments around card */
+  .frag {
+    position: absolute;
+    font-family: 'Courier New', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    opacity: 0.15;
+    pointer-events: none;
+    animation: fragFloat 8s ease-in-out infinite;
+  }
+  .frag-1 { top: -12px; right: 40px; animation-delay: 0s; }
+  .frag-2 { bottom: 20px; left: -20px; animation-delay: 2s; }
+  .frag-3 { top: 40%; right: -30px; animation-delay: 4s; }
+  @keyframes fragFloat {
+    0%, 100% { transform: translateY(0); opacity: 0.15; }
+    50% { transform: translateY(-8px); opacity: 0.25; }
+  }
+
+  /* --- Section Headings --- */
+  .section-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    max-width: 560px;
+    line-height: 1.7;
+  }
+
+  /* --- How It Works --- */
+  .how-it-works {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin-top: 64px;
+    background: var(--border-subtle);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .step {
+    background: var(--bg-deep);
+    padding: 40px 32px;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .step:hover { background: var(--bg-elevated); }
+  .step-num {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    color: var(--accent);
+    opacity: 0.2;
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .step h3 {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  .step p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+  .step-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 20px;
+    color: var(--accent);
+    opacity: 0.7;
+  }
+
+  /* --- Features --- */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 64px;
+  }
+  .feature-card {
+    padding: 36px 32px;
+    border-radius: 14px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+  }
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .feature-card:hover::after { opacity: 0.4; }
+  .feature-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: rgba(56, 189, 172, 0.08);
+    border: 1px solid var(--border-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    color: var(--accent);
+  }
+  .feature-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  .feature-card p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  /* --- Architecture --- */
+  .architecture {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .arch-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    margin-top: 64px;
+    align-items: start;
+  }
+  .arch-diagram {
+    position: relative;
+  }
+  .arch-node {
+    padding: 20px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-deep);
+    margin-bottom: 16px;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  .arch-node:hover { border-color: var(--border-accent); }
+  .arch-node-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .arch-node-name {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+  }
+  .arch-node-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .arch-connector {
+    width: 1px;
+    height: 16px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    margin: 0 auto;
+    opacity: 0.3;
+  }
+  .arch-details { }
+  .arch-detail {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .arch-detail:first-child { padding-top: 0; }
+  .arch-detail h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+  .arch-detail p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+  .arch-detail code {
+    font-family: 'DM Mono', 'Courier New', monospace;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(56, 189, 172, 0.08);
+    color: var(--accent);
+  }
+
+  /* --- Tech Stack --- */
+  .tech-groups {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 64px;
+  }
+  .tech-group {
+    padding: 32px;
+    border-radius: 14px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+  }
+  .tech-group-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  .tech-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .tech-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  .tech-list li::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+  .tech-list .version {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  /* --- CTA --- */
+  .cta {
+    text-align: center;
+    padding: 140px 0;
+    position: relative;
+  }
+  .cta::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 172, 0.06), transparent 70%);
+    pointer-events: none;
+  }
+  .cta .section-title {
+    font-size: clamp(2.25rem, 4vw, 3.25rem);
+    margin-bottom: 20px;
+  }
+  .cta .section-desc {
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  /* --- Footer --- */
+  footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: 40px 0;
+  }
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-left {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .footer-left a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .footer-right {
+    display: flex;
+    gap: 24px;
+  }
+  .footer-right a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: color 0.3s;
+  }
+  .footer-right a:hover { color: var(--text-primary); }
+
+  /* --- Animations --- */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.35s; }
+
+  /* --- Responsive --- */
+  @media (max-width: 1024px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+    .arch-layout { grid-template-columns: 1fr; gap: 48px; }
+  }
+  @media (max-width: 768px) {
+    section { padding: 80px 0; }
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .tech-groups { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .hero-actions { flex-direction: column; align-items: flex-start; }
+    .cta-actions { flex-direction: column; align-items: center; }
+    .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+  }
+  @media (max-width: 480px) {
+    .steps-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="content-wrap">
+
+  <!-- Nav -->
+  <nav id="nav">
+    <div class="container">
+      <a href="#" class="nav-logo">Fhe<span>Pulse</span></a>
+      <ul class="nav-links">
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#tech-stack">Tech Stack</a></li>
+        <li><a href="#" class="btn btn-ghost" style="padding: 8px 20px;">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div>
+          <div class="hero-badge">
+            <span class="dot"></span>
+            Built on Fhenix
+          </div>
+          <h1>Private polls,<br><em>public</em> trust</h1>
+          <p class="hero-sub">Decentralized polls and surveys powered by Fully Homomorphic Encryption. Votes are encrypted on-chain&mdash;individual responses are never revealed, only verified aggregated results.</p>
+          <div class="hero-actions">
+            <a href="#" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+              View on GitHub
+            </a>
+            <a href="#how-it-works" class="btn btn-ghost">Learn More</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <span class="frag frag-1">0x3a8f...e2c1</span>
+          <span class="frag frag-2">enc(vote)</span>
+          <span class="frag frag-3">FHE.decrypt</span>
+          <div class="hero-visual-card">
+            <div class="poll-mock-header">
+              <span class="poll-mock-title">Protocol Treasury Allocation</span>
+              <span class="poll-mock-badge-live"><span class="dot"></span> Live</span>
+            </div>
+            <div class="poll-option">
+              <span class="label">Development</span>
+              <div class="bar-track"><div class="bar-fill" style="width:62%"></div></div>
+              <span class="pct">62%</span>
+            </div>
+            <div class="poll-option">
+              <span class="label">Marketing</span>
+              <div class="bar-track"><div class="bar-fill" style="width:21%"></div></div>
+              <span class="pct">21%</span>
+            </div>
+            <div class="poll-option">
+              <span class="label">Community</span>
+              <div class="bar-track"><div class="bar-fill" style="width:12%"></div></div>
+              <span class="pct">12%</span>
+            </div>
+            <div class="poll-option">
+              <span class="label">Reserve</span>
+              <div class="bar-track"><div class="bar-fill" style="width:5%"></div></div>
+              <span class="pct">5%</span>
+            </div>
+            <div class="poll-mock-footer">
+              <div class="poll-voters">
+                <div class="voter-dots">
+                  <span class="voter-dot"></span>
+                  <span class="voter-dot"></span>
+                  <span class="voter-dot"></span>
+                </div>
+                142 encrypted votes
+              </div>
+              <span class="encrypted-tag">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                FHE Protected
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-label">How It Works</p>
+        <h2 class="section-title">Four steps to private governance</h2>
+        <p class="section-desc">From poll creation to verifiable results&mdash;privacy guaranteed at every step by Fully Homomorphic Encryption.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step reveal reveal-delay-1">
+          <div class="step-num">01</div>
+          <h3>Create a Poll</h3>
+          <p>Define your options, choose linear or quadratic voting, set a credit budget, and deploy a dedicated smart contract.</p>
+        </div>
+        <div class="step reveal reveal-delay-2">
+          <div class="step-num">02</div>
+          <h3>Vote Privately</h3>
+          <p>Responses are encrypted client-side before submission. Individual votes are never visible on-chain&mdash;not even to validators.</p>
+        </div>
+        <div class="step reveal reveal-delay-3">
+          <div class="step-num">03</div>
+          <h3>Tally On-Chain</h3>
+          <p>The Fhenix network computes over encrypted ballots using FHE. Tallies are aggregated without decrypting any single vote.</p>
+        </div>
+        <div class="step reveal reveal-delay-4">
+          <div class="step-num">04</div>
+          <h3>Reveal Results</h3>
+          <p>The poll creator triggers a multi-transaction decryption flow. Only the final aggregated totals are ever revealed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="container">
+      <div class="reveal" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <p class="section-label">Features</p>
+        <h2 class="section-title">Built for private decision-making</h2>
+        <p class="section-desc" style="text-align:center">Every design choice serves one goal: enabling collective decisions without compromising individual privacy.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3>FHE-Encrypted Voting</h3>
+          <p>Votes are encrypted before hitting the chain. The network computes over ciphertext&mdash;no trusted third party, no reveals, no compromises.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Per-Poll Isolation</h3>
+          <p>Each poll deploys its own smart contract via PollFactory. FHE permissions and state are fully isolated between polls.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/></svg>
+          </div>
+          <h3>Quadratic Voting</h3>
+          <p>Support for quadratic voting mode where cost grows with conviction. Voters distribute credits across options&mdash;weight&sup2; against a budget.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3>Linear Voting</h3>
+          <p>Classic weighted voting where you distribute points freely across options. Simple, transparent allocation for straightforward decisions.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9m-9 9a9 9 0 019-9"/></svg>
+          </div>
+          <h3>Fully Decentralized</h3>
+          <p>No backend needed for core voting. Polls live entirely on-chain. The API server provides indexing and UX enhancements, not trust assumptions.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <h3>Multi-Tx Finalization</h3>
+          <p>Results are decrypted via a two-step process: <code>requestFinalize()</code> triggers FHE decryption, <code>finalize()</code> retrieves plaintext tallies.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section class="architecture" id="architecture">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-label">Architecture</p>
+        <h2 class="section-title">Contract topology</h2>
+        <p class="section-desc">A factory pattern with per-poll isolation, designed around FHE constraints.</p>
+      </div>
+      <div class="arch-layout">
+        <div class="arch-diagram reveal reveal-delay-1">
+          <div class="arch-node">
+            <div class="arch-node-label">Factory</div>
+            <div class="arch-node-name">PollFactory.sol</div>
+            <div class="arch-node-desc">Deploys and indexes Poll instances</div>
+          </div>
+          <div class="arch-connector"></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+            <div class="arch-node">
+              <div class="arch-node-label">Poll #1</div>
+              <div class="arch-node-name">Poll.sol</div>
+              <div class="arch-node-desc">Linear mode</div>
+            </div>
+            <div class="arch-node">
+              <div class="arch-node-label">Poll #2</div>
+              <div class="arch-node-name">Poll.sol</div>
+              <div class="arch-node-desc">Quadratic mode</div>
+            </div>
+            <div class="arch-node">
+              <div class="arch-node-label">Poll #N</div>
+              <div class="arch-node-name">Poll.sol</div>
+              <div class="arch-node-desc">&hellip;</div>
+            </div>
+          </div>
+          <div class="arch-connector"></div>
+          <div class="arch-node">
+            <div class="arch-node-label">Shared Interface</div>
+            <div class="arch-node-name">IFhePulse.sol</div>
+            <div class="arch-node-desc">Types, enums, events used by all contracts</div>
+          </div>
+        </div>
+        <div class="arch-details reveal reveal-delay-2">
+          <div class="arch-detail">
+            <h3>Encrypted Inputs</h3>
+            <p>Voters submit <code>InEuint32[]</code> arrays&mdash;one encrypted weight per option. These are converted on-chain via <code>FHE.asEuint32()</code> and accumulated into encrypted tallies.</p>
+          </div>
+          <div class="arch-detail">
+            <h3>FHE Access Control</h3>
+            <p>Every encrypted value requires explicit permission grants: <code>FHE.allowThis()</code> for storage, <code>FHE.allowSender()</code> for returns, and <code>FHE.allow()</code> for specific addresses.</p>
+          </div>
+          <div class="arch-detail">
+            <h3>Conditional Logic</h3>
+            <p>Branching on encrypted booleans is impossible. All conditional logic uses <code>FHE.select(condition, ifTrue, ifFalse)</code> to maintain the encryption invariant.</p>
+          </div>
+          <div class="arch-detail">
+            <h3>Two-Phase Decryption</h3>
+            <p>Decryption is asynchronous. <code>requestFinalize()</code> submits a decryption request to the FHE co-processor. After processing, <code>finalize()</code> reads results via <code>FHE.getDecryptResultSafe()</code>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section id="tech-stack">
+    <div class="container">
+      <div class="reveal" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+        <p class="section-label">Tech Stack</p>
+        <h2 class="section-title">What powers FhePulse</h2>
+        <p class="section-desc" style="text-align:center">A modern full-stack architecture spanning encrypted smart contracts to a React frontend.</p>
+      </div>
+      <div class="tech-groups">
+        <div class="tech-group reveal reveal-delay-1">
+          <p class="tech-group-label">Frontend</p>
+          <ul class="tech-list">
+            <li>React <span class="version">19</span></li>
+            <li>Vite <span class="version">7</span></li>
+            <li>TypeScript <span class="version">5.9</span></li>
+            <li>Tailwind CSS <span class="version">4</span></li>
+            <li>shadcn/ui + Radix</li>
+            <li>TanStack React Query</li>
+            <li>Wouter</li>
+            <li>Framer Motion</li>
+          </ul>
+        </div>
+        <div class="tech-group reveal reveal-delay-2">
+          <p class="tech-group-label">Backend</p>
+          <ul class="tech-list">
+            <li>Express <span class="version">5</span></li>
+            <li>Drizzle ORM</li>
+            <li>PostgreSQL</li>
+            <li>Orval <span class="version">codegen</span></li>
+            <li>Zod <span class="version">validation</span></li>
+            <li>OpenAPI Spec</li>
+          </ul>
+        </div>
+        <div class="tech-group reveal reveal-delay-3">
+          <p class="tech-group-label">Smart Contracts</p>
+          <ul class="tech-list">
+            <li>Solidity <span class="version">0.8.25</span></li>
+            <li>Hardhat</li>
+            <li>cofhejs</li>
+            <li>@fhenixprotocol/cofhe-contracts</li>
+            <li>OpenZeppelin</li>
+            <li>Fhenix L2</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <div class="reveal">
+        <h2 class="section-title">Ready to build<br>private governance?</h2>
+        <p class="section-desc">FhePulse is open source. Explore the code, deploy your own instance, or contribute to the protocol.</p>
+        <div class="cta-actions">
+          <a href="#" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            View on GitHub
+          </a>
+          <a href="#how-it-works" class="btn btn-ghost">Read the Docs</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          Built with FHE on <a href="https://www.fhenix.io" target="_blank" rel="noopener">Fhenix</a>
+        </div>
+        <div class="footer-right">
+          <a href="#">GitHub</a>
+          <a href="#">Documentation</a>
+          <a href="https://www.fhenix.io" target="_blank" rel="noopener">Fhenix</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // Nav scroll effect
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
